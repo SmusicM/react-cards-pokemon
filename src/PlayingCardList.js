@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { v1 as uuid } from "uuid";
-
+//import axios from "axios"
 import PlayingCard from "./PlayingCard";
 import "./PlayingCardList.css";
 import useAxios from "./hooks/useAxios";
@@ -10,40 +10,66 @@ import useAxios from "./hooks/useAxios";
 function CardTable() {
   const [cards, setCards] = useState([]);
   const [deckId, setDeckId] = useState(null);
-  const data = useAxios("https://deckofcardsapi.com/api/deck/new/", {});
+  const[url,setUrl] = useState(null)
+  const data= useAxios("https://deckofcardsapi.com/api/deck/new/",{});
   useEffect(() => {
     if (!deckId && data.response) {
       setDeckId(data.response.data.deck_id);
-      console.log("console log for data response data deck_id", data.response.data.deck_id);
-      console.log("console log for data response deck_id", data.response.deck_id);
+      //console.log("console log for data response data deck_id 1", data.response.data.deck_id);
+      //console.log("console log for data response deck_id 1", data.response.deck_id);
     }
-  }, [data.response, deckId]);
+  //}, [data.response.data.deck_id, deckId]);
+}, [data.response, deckId]);
+  //console.log("console log for data response", data.data.response);
+console.log("console.log for data",data)
 
-  console.log("console log for data response", data.response);
-
-  //console.log("data response",data.response)
+console.log("deckId",deckId)
+//console.log(data.response.deck_id)
+  console.log("data response",data.response)
   //console.log("data response data",data.response.data)
-  //console.log("data response cards",data.response.cards)
-  //console.log("data response cards index 0",data.response.cards)
-
-  const addCard = async () => {
-    console.log("deckId", deckId);
-    const cardData = useAxios(
-      `https://deckofcardsapi.com/api/deck/${deckId}/draw`,
-      {}
-    );
-    if (cardData.response) {
+  //console.log("data response deck_id",data.response.deck_id)
+  //console.log("data response cards index 0",data.response)
+  //`https://deckofcardsapi.com/api/deck/${deckId}/draw`,{}
+  const cardData = useAxios(url,{});
+  console.log("cardData",cardData.response)
+  useEffect(()=>{
+    if(cardData.response){
       setCards((cards) => [
         ...cards,
-        { ...cardData.response.cards[0], id: uuid() },
+        { ...cardData.response.data.cards[0], id: uuid() }
       ]);
+      setUrl(null)
     }
-    if (cardData.isLoading) return <p>...loading</p>;
-    if (cardData.error) return <p>Error:{cardData.error}</p>;
-  };
+  },[cardData.response])
 
-  if (data.isLoading) return <p>...loading</p>;
-  if (data.error) return <p>Error:{data.error}</p>;
+  const addCard = async ()=>{
+    if(deckId){
+      setUrl(`https://deckofcardsapi.com/api/deck/${deckId}/draw`,{})
+    }
+  }
+
+  //const addCard = async() => {
+  //  console.log("deckId", deckId);
+  //  if(!deckId)return;
+  //  try{
+  //    const cardData = await axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/draw`);
+  //    //if (cardData.response) {
+  //      setCards((cards) => [
+  //        ...cards,
+  //        { ...cardData.data.cards[0], id: uuid() }
+  //      ]);
+  //    //}
+  //  }catch(e){
+  //    console.error("error at add card: ",e)
+  //  }
+  //  
+  //  
+  //  //if (cardData.isLoading) return <p>...loading</p>;
+  //  //if (cardData.error) return <p>Error:{cardData.error}</p>;
+  //};
+
+  //if (data.isLoading) return <p>...loading</p>;
+  //if (data.error) return <p>Error:{data.error}</p>;
 
   return (
     <div className="PlayingCardList">
